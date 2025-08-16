@@ -5,9 +5,17 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/benedekpal/pokedex/pokeapi"
 )
 
-func startRepl() {
+type PokedexConfig struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
+
+func startRepl(cfg *PokedexConfig) {
 
 	availableCommands := getCommands()
 
@@ -28,7 +36,7 @@ func startRepl() {
 		command, exists := availableCommands[commandName]
 
 		if exists {
-			err := command.callback()
+			err := command.callback(cfg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -49,7 +57,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*PokedexConfig) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -63,6 +71,16 @@ func getCommands() map[string]cliCommand {
 			name:        "exit",
 			description: "Exit the Pokedex",
 			callback:    commandExit,
+		},
+		"map": {
+			name:        "map",
+			description: "Display the names of locations the next 20 locations",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Display the names of the previous 20 locations",
+			callback:    commandMapb,
 		},
 	}
 }
