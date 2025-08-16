@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/benedekpal/pokedex/pokeapi"
+	"github.com/benedekpal/pokedex/internal/pokeapi"
 )
 
 func commandMap(config *PokedexConfig) error {

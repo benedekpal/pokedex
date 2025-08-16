@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/benedekpal/pokedex/pokeapi"
+	"github.com/benedekpal/pokedex/internal/pokeapi"
 )
 
 func main() {
