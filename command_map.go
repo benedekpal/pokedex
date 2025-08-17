@@ -6,24 +6,48 @@ import (
 	"github.com/benedekpal/pokedex/internal/pokeapi"
 )
 
-func commandMap(config *PokedexConfig) error {
-	// If there's no next page, return
+// Handles both 'next' and 'previous' navigation
+func handleMapNavigation(config *PokedexConfig, direction string) error {
+	// Default URL if no previous/next exists
 	url := pokeapi.BaseURL + "/location-area"
-	if config.nextLocationsURL != nil {
-		url = *config.nextLocationsURL
+
+	switch direction {
+	case "next":
+		if config.nextLocationsURL != nil {
+			url = *config.nextLocationsURL
+		}
+	case "prev":
+		if config.prevLocationsURL != nil {
+			url = *config.prevLocationsURL
+		}
+	default:
+		return fmt.Errorf("invalid direction: %s", direction)
 	}
 
-	var locationResponse PokeAPILocationResponse
+	// Fetch or retrieve from cache
+	var rawPageBody []byte
+	if cachedBody, found := config.pokeapiCache.Get(url); found {
+		rawPageBody = cachedBody
+	} else {
+		body, err := config.pokeapiClient.GetResponse(&url)
+		if err != nil {
+			return err
+		}
+		config.pokeapiCache.Add(url, body)
+		rawPageBody = body
+	}
 
-	err := config.pokeapiClient.GetJsonResponseAndDecode(&url, &locationResponse)
-	if err != nil {
+	// Decode JSON
+	var locationResponse pokeapi.PokeAPILocationResponse
+	if err := config.pokeapiClient.DecodeIntoJson(rawPageBody, &locationResponse); err != nil {
 		return err
 	}
 
+	// Update navigation URLs
 	config.nextLocationsURL = locationResponse.Next
 	config.prevLocationsURL = locationResponse.Previous
 
-	// Print the names of locations
+	// Print location names
 	for _, result := range locationResponse.Results {
 		fmt.Println(result.Name)
 	}
@@ -31,27 +55,12 @@ func commandMap(config *PokedexConfig) error {
 	return nil
 }
 
+// Next page command
+func commandMap(config *PokedexConfig) error {
+	return handleMapNavigation(config, "next")
+}
+
+// Previous page command
 func commandMapb(config *PokedexConfig) error {
-	// If there's no next page, return
-	url := pokeapi.BaseURL + "/location-area"
-	if config.nextLocationsURL != nil {
-		url = *config.nextLocationsURL
-	}
-
-	var locationResponse PokeAPILocationResponse
-
-	err := config.pokeapiClient.GetJsonResponseAndDecode(&url, &locationResponse)
-	if err != nil {
-		return err
-	}
-
-	config.nextLocationsURL = locationResponse.Next
-	config.prevLocationsURL = locationResponse.Previous
-
-	// Print the names of locations
-	for _, result := range locationResponse.Results {
-		fmt.Println(result.Name)
-	}
-
-	return nil
+	return handleMapNavigation(config, "prev")
 }

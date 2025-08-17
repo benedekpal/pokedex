@@ -1,8 +1,10 @@
 package pokeapi
 
 import (
+	"bytes"
 	"encoding/json" // You'll need this import for json.NewDecoder
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -19,6 +21,35 @@ func NewClient(timeout time.Duration) Client {
 			Timeout: timeout,
 		},
 	}
+}
+
+func (c *Client) GetResponse(pageURL *string) ([]byte, error) {
+
+	req, err := http.NewRequest("GET", *pageURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
+
+func (c *Client) DecodeIntoJson(rawdata []byte, target interface{}) error {
+	decoder := json.NewDecoder(bytes.NewReader(rawdata))
+	if err := decoder.Decode(target); err != nil {
+		return fmt.Errorf("error decoding JSON response: %w", err)
+	}
+	return nil
 }
 
 func (c *Client) GetJsonResponseAndDecode(pageURL *string, target interface{}) error {

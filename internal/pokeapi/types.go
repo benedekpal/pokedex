@@ -1,4 +1,4 @@
-package main
+package pokeapi
 
 // LocationResult represents a single item in the "results" array
 type LocationResult struct {
@@ -12,10 +12,4 @@ type PokeAPILocationResponse struct {
 	Next     *string          `json:"next"`
 	Previous *string          `json:"previous"`
 	Results  []LocationResult `json:"results"`
-}
-
-type PokedexConfig struct {
-	pokeapiClient    Client
-	nextLocationsURL *string
-	prevLocationsURL *string
 }
