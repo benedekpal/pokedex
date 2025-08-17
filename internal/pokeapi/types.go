@@ -26,3 +26,12 @@ type NamedAPIResource struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
+
+type Pokemon struct {
+	Name           string `json:"name"`
+	BaseExperiance int    `json:"base_experience"`
+}
+
+type Pokedex struct {
+	Pokemons map[string]Pokemon
+}
