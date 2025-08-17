@@ -56,11 +56,11 @@ func handleMapNavigation(config *PokedexConfig, direction string) error {
 }
 
 // Next page command
-func commandMap(config *PokedexConfig) error {
+func commandMap(config *PokedexConfig, _ []string) error {
 	return handleMapNavigation(config, "next")
 }
 
 // Previous page command
-func commandMapb(config *PokedexConfig) error {
+func commandMapb(config *PokedexConfig, _ []string) error {
 	return handleMapNavigation(config, "prev")
 }
