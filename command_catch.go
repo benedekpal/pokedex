@@ -25,6 +25,7 @@ func commandCatch(config *PokedexConfig, args []string) error {
 		if attempCatch(pokemon.BaseExperiance) {
 			fmt.Println(args[0] + " was caught!")
 			config.pokedex.Pokemons[args[0]] = pokemon
+			fmt.Println("You may now inspect it with the inspect command.")
 		} else {
 			fmt.Println(args[0] + " escaped!")
 		}
